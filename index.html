@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>GrayCat QR Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #f3f3f5;
+      --panel: #ffffff;
+      --border: #d8d8de;
+      --text: #111111;
+      --muted: #7a7a85;
+      --blue: #007aff;
+      --blue-hover: #0062cc;
+      --red: #ff453a;
+      --red-hover: #d9382f;
+      --green: #34c759;
+      --green-hover: #28a745;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 32px 20px 40px;
+    }
+
+    h1 {
+      margin: 0 0 24px;
+      text-align: center;
+      font-size: 36px;
+      line-height: 1.05;
+      font-weight: 800;
+    }
+
+    .branding {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .branding img {
+      max-height: 70px;
+      width: auto;
+      display: block;
+    }
+
+    .title {
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .version {
+      font-size: 16px;
+      color: #aaa;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 28px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    .qr-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .qr-box {
+      width: 240px;
+      height: 240px;
+      border-radius: 20px;
+      background: #fff;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .qr-placeholder {
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .download-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      min-height: 42px;
+    }
+
+    .form-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .mode-switch {
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: #ececf1;
+      padding: 6px;
+      border-radius: 14px;
+      width: fit-content;
+    }
+
+    .mode-switch button {
+      min-width: 120px;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: #333;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .mode-switch button.active {
+      background: #fff;
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .field-wrap {
+      width: 100%;
+    }
+
+    input[type="search"],
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 18px;
+      font-size: 16px;
+      font-family: inherit;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input[type="search"]:focus,
+    textarea:focus {
+      border-color: rgba(0, 122, 255, 0.55);
+      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.12);
+    }
+
+    textarea {
+      min-height: 220px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .hint {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 13px 18px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--blue-hover);
+    }
+
+    .btn-danger {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background: var(--red-hover);
+    }
+
+    .download-link {
+      display: inline-block;
+      text-decoration: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      background: var(--green);
+      color: #fff;
+      transition: 0.2s;
+    }
+
+    .download-link:hover {
+      background: var(--green-hover);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 760px) {
+      .app {
+        padding: 20px 14px 32px;
+      }
+
+      h1 {
+        font-size: 42px;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .qr-panel {
+        order: 1;
+      }
+
+      .form-panel {
+        order: 2;
+      }
+
+      .qr-box {
+        width: 220px;
+        height: 220px;
+      }
+
+      .mode-switch {
+        width: 100%;
+      }
+
+      .mode-switch button {
+        min-width: 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <h1>QR-Code Generator</h1>
+    <div class="branding">
+      <img src="logo.png" alt="QR Tool" />
+      <div class="title">GrayCat QR Tool</div>
+      <div class="version">v1.0</div>
+    </div>
+
+    <div class="card">
+      <div class="layout">
+        <div class="qr-panel">
+          <div class="qr-box" id="qrBox">
+            <div class="qr-placeholder">QR появится здесь</div>
+          </div>
+          <div class="download-row" id="downloadRow"></div>
+        </div>
+
+        <div class="form-panel">
+          <div class="mode-switch">
+            <button id="modeUrlBtn" class="active" type="button">Ссылка</button>
+            <button id="modeTextBtn" type="button">Текст</button>
+          </div>
+
+          <div class="field-wrap" id="urlWrap">
+            <input type="search" id="urlInput" placeholder="Вставь ссылку" autocomplete="off" spellcheck="false" />
+            <div class="hint">Режим для URL, email, телефона, Wi-Fi и других коротких строк.</div>
+          </div>
+
+          <div class="field-wrap hidden" id="textWrap">
+            <textarea id="textInput" placeholder="Вставь текст" spellcheck="false"></textarea>
+            <div class="hint">Большой текст тоже возможен, но слишком плотный QR будет хуже сканироваться.</div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" id="generateBtn" type="button">Сгенерировать</button>
+            <button class="btn btn-danger" id="clearBtn" type="button">Очистить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script>
+    let mode = "url";
+
+    const modeUrlBtn = document.getElementById("modeUrlBtn");
+    const modeTextBtn = document.getElementById("modeTextBtn");
+    const urlWrap = document.getElementById("urlWrap");
+    const textWrap = document.getElementById("textWrap");
+    const urlInput = document.getElementById("urlInput");
+    const textInput = document.getElementById("textInput");
+    const qrBox = document.getElementById("qrBox");
+    const downloadRow = document.getElementById("downloadRow");
+    const generateBtn = document.getElementById("generateBtn");
+    const clearBtn = document.getElementById("clearBtn");
+
+    function setMode(nextMode) {
+      mode = nextMode;
+
+      const isUrl = mode === "url";
+
+      modeUrlBtn.classList.toggle("active", isUrl);
+      modeTextBtn.classList.toggle("active", !isUrl);
+      urlWrap.classList.toggle("hidden", !isUrl);
+      textWrap.classList.toggle("hidden", isUrl);
+
+      if (isUrl) {
+        urlInput.focus();
+      } else {
+        textInput.focus();
+      }
+    }
+
+    function showPlaceholder() {
+      qrBox.innerHTML = '<div class="qr-placeholder">QR появится здесь</div>';
+      downloadRow.innerHTML = "";
+    }
+
+    function addDownloadLink(label, href, filename) {
+      const btn = document.createElement("button");
+      btn.className = "download-link";
+      btn.textContent = label;
+
+      btn.onclick = () => {
+        const a = document.createElement("a");
+        a.href = href;
+        a.download = filename;
+        a.click();
+      };
+
+      downloadRow.appendChild(btn);
+    }
+
+    function generateQR(data) {
+      if (!data) return;
+
+      qrBox.innerHTML = "";
+      downloadRow.innerHTML = "";
+
+      QRCode.toCanvas(
+        data,
+        {
+          width: 220,
+          margin: 4,
+          errorCorrectionLevel: "M"
+        },
+        function (err, canvas) {
+          if (err) {
+            console.error(err);
+            return;
+          }
+
+          qrBox.appendChild(canvas);
+
+          const pngUrl = canvas.toDataURL("image/png");
+          addDownloadLink("Скачать PNG", pngUrl, "qr.png");
+
+          QRCode.toString(
+            data,
+            { type: "svg", margin: 4, errorCorrectionLevel: "M" },
+            function (svgErr, svg) {
+              if (svgErr) {
+                console.error(svgErr);
+                return;
+              }
+
+              const blob = new Blob([svg], { type: "image/svg+xml" });
+              const svgUrl = URL.createObjectURL(blob);
+              addDownloadLink("Скачать SVG", svgUrl, "qr.svg");
+            }
+          );
+        }
+      );
+    }
+
+    function getCurrentValue() {
+      return mode === "url"
+        ? urlInput.value.trim()
+        : textInput.value.trim();
+    }
+
+    modeUrlBtn.addEventListener("click", () => setMode("url"));
+    modeTextBtn.addEventListener("click", () => setMode("text"));
+
+    generateBtn.addEventListener("click", () => {
+      const value = getCurrentValue();
+      if (!value) return;
+      generateQR(value);
+    });
+
+    clearBtn.addEventListener("click", () => {
+      urlInput.value = "";
+      textInput.value = "";
+      showPlaceholder();
+      if (mode === "url") {
+        urlInput.focus();
+      } else {
+        textInput.focus();
+      }
+    });
+
+    urlInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        generateBtn.click();
+      }
+    });
+
+    setMode("url");
+    showPlaceholder();
+  </script>
+</body>
+
+</html>
