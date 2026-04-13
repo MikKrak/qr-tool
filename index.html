@@ -227,6 +227,32 @@
       background: var(--red-hover);
     }
 
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: nowrap;
+    }
+
+    .actions .btn {
+      min-width: 180px;
+      padding: 14px 20px;
+    }
+
+    .download-link {
+      white-space: nowrap;
+      padding: 13px 18px;
+      font-size: 16px;
+      border-radius: 14px;
+      font-weight: 700;
+    }
+
+
+
+    .copy-btn:hover {
+      background: #4745c9;
+    }
+
     .download-link {
       display: inline-block;
       text-decoration: none;
@@ -286,18 +312,31 @@
         width: 100%;
       }
     }
+
+    .footer {
+      margin-top: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: #7a7a85;
+      font-size: 14px;
+    }
+
+    .footer-logo {
+      width: 48px;
+      opacity: 0.8;
+    }
+
+    .footer-text {
+      font-size: 14px;
+    }
   </style>
 </head>
 
 <body>
   <div class="app">
     <h1>QR-Code Generator</h1>
-    <div class="branding">
-      <img src="logo.png" alt="QR Tool" />
-      <div class="title">GrayCat QR Tool</div>
-      <div class="version">v1.0</div>
-    </div>
-
     <div class="card">
       <div class="layout">
         <div class="qr-panel">
@@ -329,9 +368,15 @@
           </div>
         </div>
       </div>
+      <div class="footer">
+        <img src="logo.png" class="footer-logo">
+        <div class="footer-text">
+          GrayCat QR Tool v1.0
+        </div>
+      </div>
     </div>
   </div>
-
+  </div>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
     let mode = "url";
@@ -403,7 +448,14 @@
             return;
           }
 
-          qrBox.appendChild(canvas);
+          const img = document.createElement("img");
+          img.src = canvas.toDataURL("image/png");
+          img.style.width = "100%";
+          img.style.height = "100%";
+          img.style.objectFit = "contain";
+          img.draggable = true;
+
+          qrBox.appendChild(img);
 
           const pngUrl = canvas.toDataURL("image/png");
           addDownloadLink("Скачать PNG", pngUrl, "qr.png");
@@ -431,7 +483,6 @@
         ? urlInput.value.trim()
         : textInput.value.trim();
     }
-
     modeUrlBtn.addEventListener("click", () => setMode("url"));
     modeTextBtn.addEventListener("click", () => setMode("text"));
 
@@ -462,6 +513,7 @@
     setMode("url");
     showPlaceholder();
   </script>
+
 </body>
 
 </html>
